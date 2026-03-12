@@ -1,121 +1,112 @@
-# Deployment Guide for Vercel
+# Deployment Guide
 
-## Important: Database Setup
+## The Issue: No Data in Production
 
-Your app is currently using SQLite which **doesn't work on Vercel** (serverless environment). You need to use a cloud database.
+When you deploy to Vercel or other platforms, the app shows no salary data because:
 
-## Option 1: Use PostgreSQL (Recommended)
+1. **Database is empty** - Production uses PostgreSQL, not the local SQLite file
+2. **No automatic seeding** - The seed script doesn't run during deployment
+3. **Environment variables** - Production needs proper database connection
 
-### Step 1: Get a PostgreSQL Database
+## Solution: Deploy with Database Setup
 
-Choose one of these free options:
-- **Vercel Postgres** (easiest): https://vercel.com/docs/storage/vercel-postgres
-- **Neon** (free tier): https://neon.tech
-- **Supabase** (free tier): https://supabase.com
+### Step 1: Set up PostgreSQL Database
 
-### Step 2: Update Prisma Schema
+**Option A: Vercel Postgres (Recommended)**
+1. Go to your Vercel dashboard
+2. Select your project
+3. Go to "Storage" tab
+4. Create a new Postgres database
+5. Copy the `DATABASE_URL` connection string
 
-Change `server/prisma/schema.prisma`:
+**Option B: External PostgreSQL (Neon, Supabase, etc.)**
+1. Create a PostgreSQL database on your preferred provider
+2. Get the connection string (DATABASE_URL)
 
-```prisma
-datasource db {
-  provider = "postgresql"  // Change from "sqlite"
-  url      = env("DATABASE_URL")
-}
-```
+### Step 2: Configure Environment Variables
 
-### Step 3: Set Environment Variables in Vercel
-
-Go to your Vercel project settings → Environment Variables and add:
+In your Vercel dashboard:
+1. Go to Settings → Environment Variables
+2. Add these variables:
 
 ```
 DATABASE_URL=your_postgresql_connection_string
-JWT_SECRET=your-super-secret-jwt-key-change-this
-CLIENT_URL=https://your-app.vercel.app
+JWT_SECRET=your-super-secret-jwt-key-here
 NODE_ENV=production
+CLIENT_URL=https://your-app-domain.vercel.app
 ```
 
-### Step 4: Deploy and Seed Database
+### Step 3: Deploy with Database Setup
 
-After deploying, run these commands locally to seed your production database:
+**Method 1: Automatic (Recommended)**
+The app is now configured to automatically:
+- Generate Prisma client
+- Push database schema
+- Seed with sample data
+
+Just deploy normally and it should work!
+
+**Method 2: Manual Setup**
+If automatic setup fails, run these commands locally with production DATABASE_URL:
 
 ```bash
-# Set your production DATABASE_URL
+# Set your production database URL
 export DATABASE_URL="your_postgresql_connection_string"
 
-# Generate Prisma client
-cd server
-npx prisma generate
-
-# Push schema to production database
-npx prisma db push
-
-# Seed the database
-npm run seed
+# Run the production setup script
+chmod +x setup-production.sh
+./setup-production.sh
 ```
 
-## Option 2: Quick Fix - Deploy Backend Separately
+### Step 4: Verify Deployment
 
-If you want to keep SQLite for now:
+After deployment:
+1. Visit your app URL
+2. Go to the "Search" or "Compare" page
+3. You should see salary data for various roles
+4. Try searching for "Software Engineer" in "Bangalore"
 
-### Deploy Backend on Railway/Render
+## Troubleshooting
 
-1. **Railway.app** (Recommended):
-   - Sign up at https://railway.app
-   - Create new project from GitHub
-   - Select only the `server` folder
-   - Railway will automatically detect Node.js
-   - Add environment variables in Railway dashboard
-   - Railway provides persistent storage for SQLite
+### Still No Data?
 
-2. **Update Client API URL**:
+1. **Check Vercel Function Logs**:
+   - Go to Vercel dashboard → Functions tab
+   - Check for any errors during deployment
 
-In `client/vite.config.js`, update the proxy or create `client/.env`:
+2. **Verify Database Connection**:
+   - Make sure DATABASE_URL is correctly set
+   - Test the connection string locally
 
-```env
-VITE_API_URL=https://your-backend.railway.app
-```
+3. **Manual Seeding**:
+   ```bash
+   # Connect to your production database and run:
+   npm run seed
+   ```
 
-Update `client/src/api/client.js`:
+4. **Check API Endpoints**:
+   - Visit: `https://your-app.vercel.app/api/salaries`
+   - Should return JSON with salary data
 
-```javascript
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
-  withCredentials: true
-});
-```
+### Common Issues
 
-## Current Issue
+- **"Prisma Client not found"**: Run `npm run postinstall` in server directory
+- **"Database connection failed"**: Check DATABASE_URL format
+- **"No data returned"**: Database might be empty, run seed script
 
-Your Vercel deployment has no jobs because:
-1. SQLite database file doesn't persist on Vercel (serverless)
-2. The seed data is lost after each deployment
-3. You need a persistent database solution
+## Sample Data Included
 
-## Recommended Solution
+The app comes with 80+ salary entries covering:
+- 25+ Job titles (Software Engineer, Data Scientist, Product Manager, etc.)
+- 10+ Indian cities (Bangalore, Mumbai, Hyderabad, Pune, Delhi, etc.)
+- All experience levels (Junior, Mid, Senior, Lead)
+- Multiple industries (Tech, Finance, E-commerce, etc.)
+- Realistic 2024 Indian market rates
 
-**Use Vercel Postgres** (simplest):
+## Need Help?
 
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Link your project
-vercel link
-
-# Add Vercel Postgres
-vercel postgres create
-
-# This will give you a DATABASE_URL
-# Add it to your environment variables
-```
-
-Then update your schema to PostgreSQL and redeploy.
-
-## Alternative: Use Vercel KV + Prisma Accelerate
-
-For a simpler setup, you can use Vercel's built-in storage solutions.
-
----
-
-**Need help?** Let me know which option you prefer and I'll guide you through it!
+If you're still having issues:
+1. Check the Vercel deployment logs
+2. Verify all environment variables are set
+3. Try the manual setup method
+4. Contact support with specific error messages

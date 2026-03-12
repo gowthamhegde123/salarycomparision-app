@@ -10,6 +10,7 @@ import salaryRoutes from './routes/salaries.js';
 import authRoutes from './routes/auth.js';
 import statsRoutes from './routes/stats.js';
 import predictorRoutes from './routes/predictor.js';
+import initRoutes from './routes/init.js';
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use('/api/salaries', salaryRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/predictor', predictorRoutes);
+app.use('/api/init', initRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

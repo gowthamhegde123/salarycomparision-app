@@ -10,6 +10,7 @@ import salaryRoutes from './routes/salaries.js';
 import authRoutes from './routes/auth.js';
 import statsRoutes from './routes/stats.js';
 import predictorRoutes from './routes/predictor.js';
+import adminRoutes from './routes/admin.js';
 
 dotenv.config();
 

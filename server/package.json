@@ -7,9 +7,7 @@
     "start": "node index.js",
     "build": "prisma generate && prisma db push --accept-data-loss && npm run import-csv",
     "postinstall": "prisma generate",
-    "seed": "node prisma/seed.js",
     "import-csv": "node prisma/import-csv.js",
-    "setup-postgres": "node setup-postgres.js",
     "test-db": "node test-db.js",
     "db:reset": "prisma db push --force-reset && npm run import-csv",
     "db:studio": "prisma studio"

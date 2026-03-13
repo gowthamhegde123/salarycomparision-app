@@ -35,13 +35,13 @@ async function setupPostgreSQL() {
     console.log(`📊 Current salary entries in database: ${existingCount}`);
 
     if (existingCount === 0) {
-      console.log('🌱 Seeding database with sample data...');
-      execSync('npm run seed', { stdio: 'inherit' });
+      console.log('🌱 Importing salary data from CSV file...');
+      execSync('npm run import-csv', { stdio: 'inherit' });
       
       const newCount = await prisma.salary.count();
-      console.log(`✅ Successfully seeded ${newCount} salary entries`);
+      console.log(`✅ Successfully imported ${newCount} salary entries from CSV`);
     } else {
-      console.log('✅ Database already has data, skipping seed');
+      console.log('✅ Database already has data, skipping import');
     }
 
     // Verify setup

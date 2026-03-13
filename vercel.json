@@ -12,7 +12,10 @@
       "src": "server/index.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["server/prisma/**", "Salary Dataset.csv"]
+        "includeFiles": [
+          "server/prisma/**",
+          "Salary Dataset.csv"
+        ]
       }
     }
   ],
@@ -25,5 +28,8 @@
       "src": "/(.*)",
       "dest": "client/dist/$1"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }

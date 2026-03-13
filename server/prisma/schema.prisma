@@ -16,7 +16,7 @@ model Salary {
   experienceLevel String
   baseSalary      Float
   bonus           Float?
-  currency        String   @default("USD")
+  currency        String   @default("INR")
   companySize     String?
   year            Int
   createdAt       DateTime @default(now())
